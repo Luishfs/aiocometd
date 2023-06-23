@@ -510,7 +510,7 @@ class Client:  # pylint: disable=too-many-instance-attributes
             done, pending = await asyncio.wait(
                 tasks,
                 return_when=asyncio.FIRST_COMPLETED,
-                loop=self._loop)
+                )
 
             # cancel all pending tasks
             for task in pending:
