@@ -111,6 +111,23 @@ class TransportBase(Transport):  # pylint: disable=too-many-instance-attributes
         #: Function for JSON deserialization
         self._json_loads = json_loads
 
+
+    async def _get_http_session(self) -> aiohttp.ClientSession:
+        """Factory method for getting the current HTTP session
+
+        :return: The current session if it's not None, otherwise it creates a
+                 new session.
+        """
+        # it would be nicer to create the session when the class gets
+        # initialized, but this seems to be the right way to do it since
+        # aiohttp produces log messages with warnings that a session should be
+        # created in a coroutine
+        if self._http_session is None:
+            self._http_session = aiohttp.ClientSession(
+                json_serialize=self._json_dumps
+            )
+        return self._http_session
+
     @property
     def connection_type(self) -> ConnectionType:  # pragma: no cover
         """The transport's connection type"""
