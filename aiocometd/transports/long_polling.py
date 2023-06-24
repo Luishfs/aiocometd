@@ -18,16 +18,16 @@ LOGGER = logging.getLogger(__name__)
 @register_transport(ConnectionType.LONG_POLLING)
 class LongPollingTransport(TransportBase):
     """Long-polling type transport"""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-
         #: semaphore to limit the number of concurrent HTTP connections to 2
-        self._http_semaphore = asyncio.Semaphore(2, loop=self._loop)
+        self._http_semaphore = asyncio.Semaphore(2)
 
     async def _send_final_payload(self, payload: Payload, *,
                                   headers: Headers) -> JsonObject:
         try:
-            session = self._http_session
+            session = await self._get_http_session()
             async with self._http_semaphore:
                 response = await session.post(self._url, json=payload,
                                               ssl=self.ssl, headers=headers,
